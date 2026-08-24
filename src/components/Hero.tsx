@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Calendar,
   PhoneCall,
   MapPin,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import { CLINIC_INFO, CLINIC_IMAGES } from '../data/dentalData';
 
@@ -12,27 +14,150 @@ interface HeroProps {
   onEmergencyClick: () => void;
 }
 
+const HERO_SLIDES = [
+  {
+    image: CLINIC_IMAGES.hero,
+    alt: 'Gentle Dental Care & Patient Consultation with Dr. Uzair Khan',
+    tag: 'Consultation & Diagnostics',
+  },
+  {
+    image: CLINIC_IMAGES.clinicRoom,
+    alt: 'Modern Sterile Operatory Suite at Hazara Dental Clinic Abbottabad',
+    tag: 'State-of-the-Art Operatory',
+  },
+  {
+    image: CLINIC_IMAGES.whitening,
+    alt: 'Cosmetic Dentistry and Aesthetic Smile Makeovers',
+    tag: 'Cosmetic & Whitening Care',
+  },
+  {
+    image: CLINIC_IMAGES.implants,
+    alt: 'Advanced Titanium Dental Implants & Rotary Endodontics',
+    tag: 'Advanced Implantology',
+  },
+];
+
 export const Hero: React.FC<HeroProps> = ({ onBookClick, onEmergencyClick }) => {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+
+  const nextSlide = useCallback(() => {
+    setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
+  }, []);
+
+  const prevSlide = useCallback(() => {
+    setCurrentSlide((prev) => (prev - 1 + HERO_SLIDES.length) % HERO_SLIDES.length);
+  }, []);
+
+  // Automatic slide rotation
+  useEffect(() => {
+    if (isPaused) return;
+    const timer = setInterval(() => {
+      nextSlide();
+    }, 4500);
+
+    return () => clearInterval(timer);
+  }, [nextSlide, isPaused]);
+
   return (
-    <section className="relative w-full bg-white overflow-hidden py-12 sm:py-16 lg:py-20 xl:py-24 border-b border-slate-100" id="hero">
-      {/* Seamless Right-Side Operatory & Patient Image - Bleeds to the right edge */}
-      <div className="absolute top-0 right-0 bottom-0 w-full lg:w-1/2 xl:w-7/12 pointer-events-none overflow-hidden">
-        <img
-          src={CLINIC_IMAGES.hero}
-          alt="Gentle Dental Care at Hazara Dental Clinic Abbottabad"
-          className="w-full h-full object-cover object-center lg:object-left"
-          referrerPolicy="no-referrer"
-          loading="eager"
-          id="hero-operatory-image"
-        />
+    <section
+      className="relative w-full bg-white overflow-hidden py-12 sm:py-16 lg:py-20 xl:py-24 border-b border-slate-100"
+      id="hero"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
+      {/* Background Image Slider - Bleeds to the right edge */}
+      <div className="absolute top-0 right-0 bottom-0 w-full lg:w-1/2 xl:w-7/12 overflow-hidden select-none">
+        {HERO_SLIDES.map((slide, index) => {
+          const isActive = index === currentSlide;
+          return (
+            <div
+              key={index}
+              className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+                isActive ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
+              }`}
+            >
+              <img
+                src={slide.image}
+                alt={slide.alt}
+                className={`w-full h-full object-cover object-center lg:object-left transition-transform duration-7000 ease-out ${
+                  isActive ? 'scale-105' : 'scale-100'
+                }`}
+                referrerPolicy="no-referrer"
+                loading={index === 0 ? 'eager' : 'lazy'}
+                id={`hero-slide-img-${index}`}
+              />
+            </div>
+          );
+        })}
+
         {/* Soft horizontal gradient for seamless transition between white text area and image */}
-        <div className="absolute inset-0 bg-gradient-to-r from-white via-white/80 sm:via-white/50 to-transparent lg:via-white/30" />
+        <div className="absolute inset-0 z-10 bg-gradient-to-r from-white via-white/80 sm:via-white/50 to-transparent lg:via-white/30 pointer-events-none" />
+        
         {/* Vertical gradient overlay on mobile for readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-white via-white/60 to-transparent sm:hidden" />
+        <div className="absolute inset-0 z-10 bg-gradient-to-t from-white via-white/60 to-transparent sm:hidden pointer-events-none" />
+
+        {/* Slider Controls & Slide Label (Desktop & Tablet) */}
+        <div className="absolute bottom-6 right-6 sm:bottom-8 sm:right-8 z-20 hidden sm:flex items-center gap-3">
+          {/* Active Slide Tag */}
+          <div className="bg-slate-900/70 backdrop-blur-md px-3 py-1.5 rounded-xl text-white text-[11px] font-medium border border-white/15 shadow-sm">
+            {HERO_SLIDES[currentSlide].tag}
+          </div>
+
+          {/* Navigation Arrows */}
+          <div className="flex items-center gap-1.5 bg-white/90 backdrop-blur-md p-1 rounded-xl border border-slate-200 shadow-md">
+            <button
+              onClick={prevSlide}
+              aria-label="Previous Slide"
+              className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-700 hover:text-[#00A8E8] hover:bg-slate-100 transition-colors cursor-pointer"
+              id="hero-slider-prev-btn"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+
+            {/* Pagination Dots */}
+            <div className="flex items-center gap-1 px-1">
+              {HERO_SLIDES.map((_, dotIdx) => (
+                <button
+                  key={dotIdx}
+                  onClick={() => setCurrentSlide(dotIdx)}
+                  aria-label={`Go to slide ${dotIdx + 1}`}
+                  className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+                    dotIdx === currentSlide
+                      ? 'w-4 bg-[#00A8E8]'
+                      : 'w-1.5 bg-slate-300 hover:bg-slate-400'
+                  }`}
+                  id={`hero-slider-dot-${dotIdx}`}
+                />
+              ))}
+            </div>
+
+            <button
+              onClick={nextSlide}
+              aria-label="Next Slide"
+              className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-700 hover:text-[#00A8E8] hover:bg-slate-100 transition-colors cursor-pointer"
+              id="hero-slider-next-btn"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Pagination Indicator */}
+        <div className="absolute top-4 right-4 z-20 sm:hidden flex items-center gap-1 bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/20">
+          {HERO_SLIDES.map((_, dotIdx) => (
+            <div
+              key={dotIdx}
+              className={`h-1.5 rounded-full transition-all duration-300 ${
+                dotIdx === currentSlide ? 'w-3.5 bg-[#00A8E8]' : 'w-1.5 bg-white/60'
+              }`}
+            />
+          ))}
+        </div>
       </div>
 
       {/* Main Content Layout with Standard Left Margin */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl lg:max-w-xl xl:max-w-2xl">
           
           {/* Top Category Badge */}
@@ -64,7 +189,7 @@ export const Hero: React.FC<HeroProps> = ({ onBookClick, onEmergencyClick }) => 
             </div>
           </div>
 
-          {/* Call-to-Action Buttons */}
+          {/* Call-to-Action Buttons & Location */}
           <div className="flex flex-wrap items-center gap-3 sm:gap-4">
             <button
               onClick={onBookClick}
@@ -83,18 +208,16 @@ export const Hero: React.FC<HeroProps> = ({ onBookClick, onEmergencyClick }) => 
               <PhoneCall className="w-4 h-4 sm:w-5 sm:h-5 text-rose-500" />
               <span>Emergency Call</span>
             </button>
+
+            <div className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs sm:text-sm font-bold text-[#0A2540] shadow-sm">
+              <MapPin className="w-4 h-4 text-[#00A8E8]" />
+              <span>Main Kachehri Road</span>
+            </div>
           </div>
 
-        </div>
-      </div>
-
-      {/* Floating Location Badge on Bottom Right */}
-      <div className="absolute bottom-4 sm:bottom-6 lg:bottom-8 right-4 sm:right-6 lg:right-8 z-20">
-        <div className="bg-white/95 backdrop-blur-md px-3.5 sm:px-4 py-2 rounded-2xl border border-slate-200 shadow-md flex items-center gap-2 text-xs sm:text-sm font-bold text-[#0A2540]">
-          <MapPin className="w-4 h-4 text-[#00A8E8]" />
-          <span>Main Kachehri Road</span>
         </div>
       </div>
     </section>
   );
 };
+
