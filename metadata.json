@@ -1,0 +1,8 @@
+{
+  "name": "Hazara Dental Clinic",
+  "description": "Premier dental clinic in Abbottabad led by Dr. Uzair Khan offering pain-free dentistry, implants, root canals, teeth whitening, orthodontics, and emergency dental care.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
