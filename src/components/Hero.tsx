@@ -6,6 +6,7 @@ import {
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
+  Sparkles,
 } from 'lucide-react';
 import { CLINIC_INFO, CLINIC_IMAGES } from '../data/dentalData';
 
@@ -19,23 +20,48 @@ const HERO_SLIDES = [
     image: CLINIC_IMAGES.hero,
     alt: 'Gentle Dental Care & Patient Consultation with Dr. Uzair Khan',
     tag: 'Consultation & Diagnostics',
+    zoomType: 'in',
   },
   {
     image: CLINIC_IMAGES.clinicRoom,
     alt: 'Modern Sterile Operatory Suite at Hazara Dental Clinic Abbottabad',
     tag: 'State-of-the-Art Operatory',
+    zoomType: 'out',
   },
   {
     image: CLINIC_IMAGES.whitening,
-    alt: 'Cosmetic Dentistry and Aesthetic Smile Makeovers',
+    alt: 'Cosmetic Dentistry and Professional Teeth Whitening',
     tag: 'Cosmetic & Whitening Care',
+    zoomType: 'in',
   },
   {
     image: CLINIC_IMAGES.implants,
     alt: 'Advanced Titanium Dental Implants & Rotary Endodontics',
     tag: 'Advanced Implantology',
+    zoomType: 'out',
+  },
+  {
+    image: CLINIC_IMAGES.smileTransformation,
+    alt: 'Full Aesthetic Smile Transformations & Restorative Care',
+    tag: 'Smile Makeovers',
+    zoomType: 'in',
+  },
+  {
+    image: CLINIC_IMAGES.aligners,
+    alt: 'Clear Aligners & Precision Orthodontic Alignment',
+    tag: 'Invisible Aligners',
+    zoomType: 'out',
+  },
+  {
+    image: CLINIC_IMAGES.pediatric,
+    alt: 'Gentle & Caring Pediatric Dentistry for Families',
+    tag: 'Gentle Family Dentistry',
+    zoomType: 'in',
   },
 ];
+
+// Short slide interval (2.8 seconds) as requested
+const SLIDE_INTERVAL_MS = 2800;
 
 export const Hero: React.FC<HeroProps> = ({ onBookClick, onEmergencyClick }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -49,12 +75,12 @@ export const Hero: React.FC<HeroProps> = ({ onBookClick, onEmergencyClick }) => 
     setCurrentSlide((prev) => (prev - 1 + HERO_SLIDES.length) % HERO_SLIDES.length);
   }, []);
 
-  // Automatic slide rotation
+  // Automatic slide rotation with short interval
   useEffect(() => {
     if (isPaused) return;
     const timer = setInterval(() => {
       nextSlide();
-    }, 4500);
+    }, SLIDE_INTERVAL_MS);
 
     return () => clearInterval(timer);
   }, [nextSlide, isPaused]);
@@ -66,27 +92,40 @@ export const Hero: React.FC<HeroProps> = ({ onBookClick, onEmergencyClick }) => 
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
-      {/* Background Image Slider - Bleeds to the right edge */}
+      {/* Background Image Slider with Zoom-In & Zoom-Out Animations */}
       <div className="absolute top-0 right-0 bottom-0 w-full lg:w-1/2 xl:w-7/12 overflow-hidden select-none">
         {HERO_SLIDES.map((slide, index) => {
           const isActive = index === currentSlide;
+          const isZoomIn = slide.zoomType === 'in';
+          
           return (
             <div
               key={index}
-              className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+              className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
                 isActive ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
               }`}
             >
-              <img
-                src={slide.image}
-                alt={slide.alt}
-                className={`w-full h-full object-cover object-center lg:object-left transition-transform duration-7000 ease-out ${
-                  isActive ? 'scale-105' : 'scale-100'
-                }`}
-                referrerPolicy="no-referrer"
-                loading={index === 0 ? 'eager' : 'lazy'}
-                id={`hero-slide-img-${index}`}
-              />
+              {isActive ? (
+                <img
+                  key={`slide-${index}-${isActive}`}
+                  src={slide.image}
+                  alt={slide.alt}
+                  className={`w-full h-full object-cover object-center lg:object-left ${
+                    isZoomIn ? 'animate-hero-zoom-in' : 'animate-hero-zoom-out'
+                  }`}
+                  referrerPolicy="no-referrer"
+                  loading={index === 0 ? 'eager' : 'lazy'}
+                  id={`hero-slide-img-${index}`}
+                />
+              ) : (
+                <img
+                  src={slide.image}
+                  alt={slide.alt}
+                  className="w-full h-full object-cover object-center lg:object-left"
+                  referrerPolicy="no-referrer"
+                  loading="lazy"
+                />
+              )}
             </div>
           );
         })}
@@ -99,17 +138,21 @@ export const Hero: React.FC<HeroProps> = ({ onBookClick, onEmergencyClick }) => 
 
         {/* Slider Controls & Slide Label (Desktop & Tablet) */}
         <div className="absolute bottom-6 right-6 sm:bottom-8 sm:right-8 z-20 hidden sm:flex items-center gap-3">
-          {/* Active Slide Tag */}
-          <div className="bg-slate-900/70 backdrop-blur-md px-3 py-1.5 rounded-xl text-white text-[11px] font-medium border border-white/15 shadow-sm">
-            {HERO_SLIDES[currentSlide].tag}
+          {/* Active Slide Tag with Transition Badge */}
+          <div className="bg-slate-900/75 backdrop-blur-md px-3.5 py-1.5 rounded-xl text-white text-[11px] font-semibold border border-white/15 shadow-md flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#00A8E8] animate-ping" />
+            <span>{HERO_SLIDES[currentSlide].tag}</span>
+            <span className="text-[10px] text-cyan-300 font-bold ml-1 uppercase">
+              {HERO_SLIDES[currentSlide].zoomType === 'in' ? '▲ Zoom In' : '▼ Zoom Out'}
+            </span>
           </div>
 
-          {/* Navigation Arrows */}
-          <div className="flex items-center gap-1.5 bg-white/90 backdrop-blur-md p-1 rounded-xl border border-slate-200 shadow-md">
+          {/* Navigation Controls */}
+          <div className="flex items-center gap-1.5 bg-white/95 backdrop-blur-md p-1.5 rounded-2xl border border-slate-200 shadow-lg">
             <button
               onClick={prevSlide}
               aria-label="Previous Slide"
-              className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-700 hover:text-[#00A8E8] hover:bg-slate-100 transition-colors cursor-pointer"
+              className="w-7 h-7 rounded-xl flex items-center justify-center text-slate-700 hover:text-[#00A8E8] hover:bg-slate-100 transition-colors cursor-pointer"
               id="hero-slider-prev-btn"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -135,7 +178,7 @@ export const Hero: React.FC<HeroProps> = ({ onBookClick, onEmergencyClick }) => 
             <button
               onClick={nextSlide}
               aria-label="Next Slide"
-              className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-700 hover:text-[#00A8E8] hover:bg-slate-100 transition-colors cursor-pointer"
+              className="w-7 h-7 rounded-xl flex items-center justify-center text-slate-700 hover:text-[#00A8E8] hover:bg-slate-100 transition-colors cursor-pointer"
               id="hero-slider-next-btn"
             >
               <ChevronRight className="w-4 h-4" />
@@ -144,7 +187,7 @@ export const Hero: React.FC<HeroProps> = ({ onBookClick, onEmergencyClick }) => 
         </div>
 
         {/* Mobile Pagination Indicator */}
-        <div className="absolute top-4 right-4 z-20 sm:hidden flex items-center gap-1 bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/20">
+        <div className="absolute top-4 right-4 z-20 sm:hidden flex items-center gap-1 bg-black/50 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/20">
           {HERO_SLIDES.map((_, dotIdx) => (
             <div
               key={dotIdx}
@@ -220,4 +263,3 @@ export const Hero: React.FC<HeroProps> = ({ onBookClick, onEmergencyClick }) => 
     </section>
   );
 };
-

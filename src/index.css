@@ -28,3 +28,29 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
+
+@keyframes heroZoomIn {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.14);
+  }
+}
+
+@keyframes heroZoomOut {
+  0% {
+    transform: scale(1.16);
+  }
+  100% {
+    transform: scale(1.01);
+  }
+}
+
+.animate-hero-zoom-in {
+  animation: heroZoomIn 3.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+.animate-hero-zoom-out {
+  animation: heroZoomOut 3.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
