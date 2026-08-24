@@ -48,9 +48,9 @@
 }
 
 .animate-hero-zoom-in {
-  animation: heroZoomIn 3.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  animation: heroZoomIn 5.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
 
 .animate-hero-zoom-out {
-  animation: heroZoomOut 3.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  animation: heroZoomOut 5.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }

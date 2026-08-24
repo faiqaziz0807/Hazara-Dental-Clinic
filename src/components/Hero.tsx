@@ -60,8 +60,8 @@ const HERO_SLIDES = [
   },
 ];
 
-// Short slide interval (2.8 seconds) as requested
-const SLIDE_INTERVAL_MS = 2800;
+// 5000ms slide interval
+const SLIDE_INTERVAL_MS = 5000;
 
 export const Hero: React.FC<HeroProps> = ({ onBookClick, onEmergencyClick }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
